@@ -37,6 +37,7 @@ class Mysql {
             });
         }.bind(this));
     }
+    
 }
 
 module.exports.DB = new Mysql();
