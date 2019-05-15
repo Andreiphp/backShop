@@ -26,6 +26,17 @@ class Mysql {
             });
         }.bind(this));
     }
+    countPages(response) {
+        this.connection.connect(function (err) {
+            this.connection.query("SET SESSION wait_timeout = 604800");
+            let sql = 'SELECT COUNT(id) AS count FROM products';
+            this.connection.query(sql, function (err, result) {
+                if (err) throw err;
+                console.log(result)
+               response.json(result)
+            });
+        }.bind(this));
+    }
 }
 
 module.exports.DB = new Mysql();

@@ -5,14 +5,12 @@ const jwt = require('jsonwebtoken');
 const config = require('./../config.json');
 
 routerController.post('/authenticate', function (req, res) {
-    console.log('fd');
     let login = req.body.login;
     let password = req.body.password;
     const token = jwt.sign({sub: 1}, config.secret, {expiresIn: 86400});
     mysqli.DB.getAdmin(login, password, token, res);
 });
 routerController.get('/checkToken', function (req, res) {
-    console.log('init');
     let token = req.headers.authorization.split(' ')[1];
     jwt.verify(token, config.secret, function (err, decoded) {
         if (err) {
@@ -22,6 +20,10 @@ routerController.get('/checkToken', function (req, res) {
         }
 
     });
+});
+
+routerController.get('/count_pages', (req, res) => {
+    mysqli.DB.countPages(res);
 });
 
 
