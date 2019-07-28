@@ -10,7 +10,11 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(fileUpload());
 
-// app.use(expressJwt({secret: 'werty'}).unless({path: ['/router/authenticate']}));
+app.use(expressJwt({secret: 'werty'}).unless({path: [
+    '/router/authenticate', 
+    '/router/getAllProducts',
+    '/router/get_categories',
+]}));
 app.use('/router', route);
 // app.use(function (err, req, res, next) {
 //     if (err.name === 'UnauthorizedError') {
