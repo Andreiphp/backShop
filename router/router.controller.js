@@ -24,11 +24,17 @@ routerController.get('/getAllProducts', (req, res) => {
     let offs = +req.query.offset;
     let count = +req.query.count;
     let category = req.query.category
-    mysqli.DB.getAllProducts(category, --offs, count, res);
+    let sort = req.query.sort
+    let toSort = req.query.toSort
+    mysqli.DB.getAllProducts(category, --offs * count, count, sort, toSort, res);
 });
 
 routerController.get('/get_categories', (req, res) => {
     mysqli.DB.get_categories(res);
+});
+
+routerController.get('/getBrands', (req, res) => {
+    mysqli.DB.getBrands(res);
 });
 
 

@@ -14,6 +14,7 @@ app.use(expressJwt({secret: 'werty'}).unless({path: [
     '/router/authenticate', 
     '/router/getAllProducts',
     '/router/get_categories',
+    '/router/getBrands',
 ]}));
 app.use('/router', route);
 // app.use(function (err, req, res, next) {

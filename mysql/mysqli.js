@@ -25,8 +25,6 @@ class Mysql {
         }.bind(this));
     }
     countFromBd(category, tableName) {
-        console.log(category);
-        
         let sql;
         if (category === 'all') {
             sql = 'SELECT COUNT(*) as count FROM' + ' ' + tableName;
@@ -49,11 +47,13 @@ class Mysql {
         })
        return promise;
     }
-    getAllProducts(category, offs, count, response) {
+    getAllProducts(category, offs, count, sort, toSort, response) {
+        let flag = toSort === 'true' ? 'asc' : 'desc';
         this.connection.connect(function (err) { 
-            let sql = 'SELECT * FROM products WHERE cat_id = ?  LIMIT ' + offs + ',' + count;
+            let sql = 'SELECT * FROM products WHERE cat_id = ? ORDER BY' + ` ${sort}  ${flag}` + ' LIMIT ' + offs + ',' + count;
+            console.log(sql);
             this.countFromBd(category, 'products').then(count => {
-                this.connection.query(sql, [category, offs, count], (error, result) => {
+                this.connection.query(sql, [category, offs, count, sort, flag], (error, result) => {
                     if (error) throw err;
                     if (result.length) {
                         result.count = count
@@ -64,7 +64,6 @@ class Mysql {
                 })
             }).catch(er => {
                 console.log(er);
-                
             });
            
         }.bind(this));
@@ -74,6 +73,21 @@ class Mysql {
         this.connection.connect(function (err) {
             this.connection.query("SET SESSION wait_timeout = 604800");
            let sql = 'SELECT * FROM categpries';
+            this.connection.query(sql, (error, result) => {
+                if (error) throw error;
+                if (result) {
+                    response.json(result);
+                } else {
+                    response.json(false);
+                }
+            })
+        }.bind(this));
+    }
+    getBrands(response) {
+        this.connection.connect(function (err) {
+            this.connection.query("SET SESSION wait_timeout = 604800");
+            let sql = `SELECT brands.id, brands.img, brands.title, COUNT(products.id) as count FROM brands LEFT JOIN 
+            products ON brands.id = products.brand_id group BY brands.id`;
             this.connection.query(sql, (error, result) => {
                 if (error) throw error;
                 if (result) {
