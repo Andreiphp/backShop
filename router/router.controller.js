@@ -33,8 +33,13 @@ routerController.get('/get_categories', (req, res) => {
     mysqli.DB.get_categories(res);
 });
 
+<<<<<<< HEAD
 routerController.get('/getBrands', (req, res) => {
     mysqli.DB.getBrands(res);
+=======
+routerController.get('/count_pages', (req, res) => {
+    mysqli.DB.countPages(res);
+>>>>>>> 08c90c8b3765a1a49d4e17914db09f3d4a7b8ef5
 });
 
 
