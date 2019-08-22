@@ -6,7 +6,7 @@ class Mysql {
             host: "localhost",
             user: "root",
             password: "",
-            database: "shop"
+            database: "angularshop"
         });
     }
 
@@ -51,7 +51,6 @@ class Mysql {
         let flag = toSort === 'true' ? 'asc' : 'desc';
         this.connection.connect(function (err) { 
             let sql = 'SELECT * FROM products WHERE cat_id = ? ORDER BY' + ` ${sort}  ${flag}` + ' LIMIT ' + offs + ',' + count;
-            console.log(sql);
             this.countFromBd(category, 'products').then(count => {
                 this.connection.query(sql, [category, offs, count, sort, flag], (error, result) => {
                     if (error) throw err;
@@ -98,7 +97,29 @@ class Mysql {
             })
         }.bind(this));
     }
+    getProductsByFilter({brands, priceTo, priceFrom, offset, count, sort, toSort}, response) {
+        this.connection.connect(function (err) {
+            this.connection.query("SET SESSION wait_timeout = 604800");
+            let sql = `SELECT products.*
+            FROM products WHERE products.brand_id IN (SELECT brands.id FROM brands WHERE brands.title IN ('San'))`;
+            this.connection.query(sql, (error, result) => {
+                if (error) throw error;
+                if (result) {
+                    response.json(result);
+                } else {
+                    response.json(false);
+                }
+            })
+        }.bind(this));
+    }
+    getCountFilter() {
 
+    }
+    // products.price,
+    // products.sale,
+    // products.minidescription,
+    // products.brand_id,
+    // products.cat_id,
 
 
 }

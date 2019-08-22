@@ -21,6 +21,7 @@ routerController.get('/checkToken', function (req, res) {
     });
 });
 routerController.get('/getAllProducts', (req, res) => {
+    console.log(req.query);
     let offs = +req.query.offset;
     let count = +req.query.count;
     let category = req.query.category
@@ -36,6 +37,9 @@ routerController.get('/get_categories', (req, res) => {
 routerController.get('/getBrands', (req, res) => {
     mysqli.DB.getBrands(res);
 });
+routerController.get('/getProductsByFilter', (req, res) => {
+    mysqli.DB.getProductsByFilter(req.query, res);
+})
 
 
 module.exports = routerController;
