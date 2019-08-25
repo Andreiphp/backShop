@@ -1,4 +1,5 @@
 let mysqli = require('mysql');
+let helperSql = require('../helpers/helper-sql');
 
 class Mysql {
     constructor() {
@@ -6,7 +7,7 @@ class Mysql {
             host: "localhost",
             user: "root",
             password: "",
-            database: "angularshop"
+            database: "shop"
         });
     }
 
@@ -28,35 +29,35 @@ class Mysql {
         let sql;
         if (category === 'all') {
             sql = 'SELECT COUNT(*) as count FROM' + ' ' + tableName;
-        }   else {
+        } else {
             sql = 'SELECT COUNT(*) as count FROM' + ' ' + tableName;
         }
         const promise = new Promise((resolve, reject) => {
-             this.connection.connect(function (err) { 
-            this.connection.query("SET SESSION wait_timeout = 604800");
-           
-            this.connection.query(sql, (error, result) => {
-                if (error)  reject(error);
-                if (result) {
-                    resolve(result);
-                } else {
-                    reject(false);
-                }
-            })
-        }.bind(this));
+            this.connection.connect(function (err) {
+                this.connection.query("SET SESSION wait_timeout = 604800");
+
+                this.connection.query(sql, (error, result) => {
+                    if (error) reject(error);
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(false);
+                    }
+                })
+            }.bind(this));
         })
-       return promise;
+        return promise;
     }
     getAllProducts(category, offs, count, sort, toSort, response) {
         let flag = toSort === 'true' ? 'asc' : 'desc';
-        this.connection.connect(function (err) { 
+        this.connection.connect(function (err) {
             let sql = 'SELECT * FROM products WHERE cat_id = ? ORDER BY' + ` ${sort}  ${flag}` + ' LIMIT ' + offs + ',' + count;
             this.countFromBd(category, 'products').then(count => {
                 this.connection.query(sql, [category, offs, count, sort, flag], (error, result) => {
                     if (error) throw err;
                     if (result.length) {
                         result.count = count
-                        response.json({res: result, count: count[0]});
+                        response.json({ res: result, count: count[0] });
                     } else {
                         response.json(false);
                     }
@@ -64,14 +65,14 @@ class Mysql {
             }).catch(er => {
                 console.log(er);
             });
-           
+
         }.bind(this));
     }
 
     get_categories(response) {
         this.connection.connect(function (err) {
             this.connection.query("SET SESSION wait_timeout = 604800");
-           let sql = 'SELECT * FROM categpries';
+            let sql = 'SELECT * FROM categpries';
             this.connection.query(sql, (error, result) => {
                 if (error) throw error;
                 if (result) {
@@ -97,20 +98,67 @@ class Mysql {
             })
         }.bind(this));
     }
-    getProductsByFilter({brands, priceTo, priceFrom, offset, count, sort, toSort}, response) {
-        this.connection.connect(function (err) {
-            this.connection.query("SET SESSION wait_timeout = 604800");
-            let sql = `SELECT products.*
-            FROM products WHERE products.brand_id IN (SELECT brands.id FROM brands WHERE brands.title IN ('San'))`;
-            this.connection.query(sql, (error, result) => {
-                if (error) throw error;
-                if (result) {
-                    response.json(result);
+    getProductsByFilter({ brands, priceTo, priceFrom, offset, count, sort, toSort }, response) {
+        let sql;
+        let countSql;
+        let sqlB = this.parseBrandsString(brands);
+        if (sqlB) {
+            sql = helperSql.Hsql.SqlQueryWidthBrands(sqlB, priceTo, priceFrom, offset, count, sort, toSort)
+        } else {
+            sql = helperSql.Hsql.SqlQueryWidthOutBrands(priceTo, priceFrom, offset, count, sort, toSort);
+        }
+        if (sqlB) {
+            countSql = helperSql.Hsql.countWidthBrand(sqlB, priceTo, priceFrom);
+        } else {
+            countSql = helperSql.Hsql.countWidthOutBrand(priceTo, priceFrom);
+        }
+        this.getCount(countSql).then(count => {
+            this.connection.connect(function (err) {
+                this.connection.query("SET SESSION wait_timeout = 604800");
+
+                this.connection.query(sql, [brands/* , priceTo, priceFrom, offset, count, sort, toSort */], (error, result) => {
+                    if (error) throw error;
+                    if (result) {
+                        response.json({ res: result, count: count });
+                    } else {
+                        response.json(false);
+                    }
+                })
+            }.bind(this));
+        })
+
+    }
+
+    parseBrandsString(brands) {
+        let sqlString = "";
+        if (brands) {
+            let h = brands.split(',');
+            h.forEach((element, index) => {
+                if (index === h.length - 1) {
+                    sqlString += "'" + element + "'";
                 } else {
-                    response.json(false);
+                    sqlString += "'" + element + "',";
                 }
-            })
-        }.bind(this));
+    
+            });
+        }
+        return sqlString;
+    }
+    getCount(sql) {
+        const promise = new Promise((resolve, reject) => {
+            this.connection.connect(function (err) {
+                this.connection.query("SET SESSION wait_timeout = 604800");
+                this.connection.query(sql, (error, result) => {
+                    if (error) reject(error);
+                    if (result) {
+                        resolve(result);
+                    } else {
+                        reject(false);
+                    }
+                })
+            }.bind(this));
+        })
+        return promise;
     }
     getCountFilter() {
 
