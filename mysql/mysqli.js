@@ -139,7 +139,7 @@ class Mysql {
                 } else {
                     sqlString += "'" + element + "',";
                 }
-    
+
             });
         }
         return sqlString;
@@ -160,14 +160,43 @@ class Mysql {
         })
         return promise;
     }
-    getCountFilter() {
 
+    searchData(search, response) {
+        const promise = new Promise((resolve, reject) => {
+            const sqlCount =  helperSql.Hsql.countSearchItems(search);
+            const sqlSearch = helperSql.Hsql.searchItemsEasy(search);
+            this.connection.connect(function (err) {
+                this.connection.query("SET SESSION wait_timeout = 604800");
+                const queryCount = new Promise((r, e) => {
+                    this.connection.query(sqlCount, (error, result) => {
+                        if (result) {
+                            r(result);
+                        } else {
+                            e(error);
+                        }
+                    })
+                });
+                const querySearch = new Promise((r, e) => {
+                    this.connection.query(sqlSearch, (error, result) => {
+                        if (result) {
+                            r(result)
+                        } else {
+                            e(error);
+                        }
+                    })
+                });
+                Promise.all([queryCount, querySearch]).then(resp => {
+                    response.json(resp);
+                }).catch(error => {
+                    console.log(error);
+                    
+                    response.json(error);
+                });
+            }.bind(this));
+        })
+        return promise;
     }
-    // products.price,
-    // products.sale,
-    // products.minidescription,
-    // products.brand_id,
-    // products.cat_id,
+
 
 
 }

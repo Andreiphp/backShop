@@ -29,6 +29,15 @@ class HelperSql {
         sql += " WHERE price BETWEEN " + `${priceFrom}` + " AND " + `${priceTo}`;
         return sql;
     }
+    searchItemsEasy(search) {
+        const sql = "SELECT * FROM products WHERE title like '%" + search + "%'";
+        return sql;
+    }
+    countSearchItems(search) {
+        let sql = "SELECT COUNT(*) as count FROM products";
+        sql += " WHERE title like '%" + search + "%'";
+        return sql;
+    }
     
 }
 
