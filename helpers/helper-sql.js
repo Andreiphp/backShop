@@ -30,6 +30,9 @@ class HelperSql {
         return sql;
     }
     searchItemsEasy(search) {
+        if (!search) {
+            search = 'NOT FAUND';
+        }
         const sql = "SELECT * FROM products WHERE title like '%" + search + "%'";
         return sql;
     }
