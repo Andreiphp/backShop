@@ -197,6 +197,21 @@ class Mysql {
         return promise;
     }
 
+    collection(query, response) {
+        this.connection.connect(function (err) {
+            this.connection.query("SET SESSION wait_timeout = 604800");
+            let sql = 'SELECT * FROM products WHERE id IN (' + `${query.products.replace(/(\d)/g, '\'$1\'')}` + ')';
+                this.connection.query(sql, (error, result) => {
+                    if (error)  response.json(err);
+                    if (result && result.length) {
+                        response.json({result});
+                    } else {
+                        response.json(false);
+                    }
+                })
+        }.bind(this));
+    }
+
 
 
 }

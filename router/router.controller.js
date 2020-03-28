@@ -40,6 +40,9 @@ routerController.get('/getBrands', (req, res) => {
 routerController.get('/getProductsByFilter', (req, res) => {
     mysqli.DB.getProductsByFilter(req.query, res);
 });
+routerController.get('/collection', (req, res) => {
+    mysqli.DB.collection(req.query, res);
+});
 routerController.get('/search', (req, res) => {
     console.log(req.query.search);
     const search = req.query.search;
